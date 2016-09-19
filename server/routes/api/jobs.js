@@ -48,7 +48,7 @@ module.exports = function (express) {
    *   endpoint: http://localhost:8080/api/v1/jobs
    */
   jobRouter.get('/', function (req, res) {
-    Job.findById(req.params.job_id, function (err, data) {
+    Job.get(req.params.job_id, function (err, data) {
       if (err) return res.status(codes.bad_request).send(err);
       return res.send(data);
     });

@@ -8,7 +8,7 @@ var api = {};
 
 api.get = function (id, cb) {
     if (!id) throw 'id parameter required.';
-    Model.find({_id: id}, cb);
+    Model.findOne({_id: id}, cb);
 };
 
 api.getAll = function (cb) {
