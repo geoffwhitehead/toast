@@ -4,21 +4,23 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
-
-var routes = require('./routes/api/index');
+var routes = require('./routes/api');
 var jobs = require('./routes/api/jobs');
-
 var app = express();
-
 var http = require('http');
-
 var server = app.listen(8000, function() {
     var host = 'localhost';
     var port = server.address().port;
     console.log('App listening at http://%s:%s', host, port);
 });
-
 var io = require('socket.io').listen(server);
+
+app.use(logger('dev'));
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(cookieParser());
+
+
 server.listen(8000);
 
 
@@ -26,28 +28,26 @@ server.listen(8000);
 io.set("origins", "*:*");
 var currentPrice = 0.00;
 io.on('connection', function (socket) {
-	socket.emit('priceUpdate',currentPrice);
-	socket.on('bid', function (data) {
-		currentPrice = parseInt(data);
-		socket.emit('priceUpdate',currentPrice);
-		socket.broadcast.emit('priceUpdate',currentPrice);
-	});
+    socket.emit('priceUpdate',currentPrice);
+    socket.on('bid', function (data) {
+        currentPrice = parseInt(data);
+        socket.emit('priceUpdate',currentPrice);
+        socket.broadcast.emit('priceUpdate',currentPrice);
+    });
 });
 
 
-// static routes
-app.use('/scripts', express.static(__dirname + '/node_modules/'));
-app.use('/templates', express.static(__dirname + '/views/templates/'));
+/**
+ * Routes
+ */
 
-// view engine setup
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'ejs');
-app.engine('html', require('ejs').renderFile);
-app.use(logger('dev'));
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
+app.use('/api/v1', require('./routes/api')(express));
+
+/**
+ * No routes match, attempt to serve static content
+ */
+
+app.use('/', express.static(__dirname + '../client'));
 
 app.use('/', routes);
 app.use('/api/v1/', jobs);
