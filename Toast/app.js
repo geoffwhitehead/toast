@@ -6,6 +6,25 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var routes = require('./routes/index');
 var app = express();
+var http = require('http');
+var server = http.createServer(app);
+var io = require('socket.io').listen(server);
+
+
+server.listen(8000);
+io.set("origins", "*:*");
+
+var currentPrice = 99;
+
+io.on('connection', function (socket) {
+    socket.emit('priceUpdate',currentPrice);
+    socket.on('bid', function (data) {
+    currentPrice = parseInt(data);
+    socket.emit('priceUpdate',currentPrice);
+    socket.broadcast.emit('priceUpdate',currentPrice);
+  });
+});
+
 
 app.use(logger('dev'));
 app.use(bodyParser.json());
