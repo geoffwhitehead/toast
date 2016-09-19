@@ -1,5 +1,5 @@
-module.exports = function (express, passport, io) {
+module.exports = function (express) {
   var router = express.Router({mergeParams: true});
-  router.use('/jobs', require('./api/v1/jobs')(express, passport));
+  router.use('/jobs', require('./api/jobs')(express));
   return router;
 }

@@ -4,9 +4,8 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
-var routes = require('./routes/api');
-var jobs = require('./routes/api/jobs');
 var app = express();
+var mongoose = require('mongoose');
 var http = require('http');
 var server = app.listen(8000, function() {
     var host = 'localhost';
@@ -23,6 +22,7 @@ app.use(cookieParser());
 
 server.listen(8000);
 
+mongoose.connect('mongodb://localhost/toast', function(err){ if (err) console.error(err)});
 
 // io
 io.set("origins", "*:*");
@@ -47,10 +47,7 @@ app.use('/api/v1', require('./routes/api')(express));
  * No routes match, attempt to serve static content
  */
 
-app.use('/', express.static(__dirname + '../client'));
-
-app.use('/', routes);
-app.use('/api/v1/', jobs);
+app.use(express.static(path.join(__dirname, '../client')));
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

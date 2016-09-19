@@ -1,5 +1,5 @@
 var codes = require('../../helpers/httpCodes');
-var Job = require('../../models/job');
+var Job = require('../../services/job.service');
 
 module.exports = function (express) {
   var router = express.Router({ mergeParams: true });
@@ -13,13 +13,14 @@ module.exports = function (express) {
    * @apiExample Example usage:
    *   endpoint: http://localhost:8080/api/v1/jobs
    */
-  router.get('/', {session: false}), function (req, res) {
-    Job.getAll(req.user, function (err, data) {
-      console.log("getting jobs:  " + data);
-      if (err) return res.status(codes.bad_request).send(err);
+  router.get('/', function (req, res) {
+    Job.getAll(function (err, data) {
+       console.log("getting jobs:  " + data);
+       if (err) return res.status(codes.bad_request).send(err);
       return res.send(data);
     });
-  };
+    //res.send("hello");
+  });
 
   /**
    * @api {post} / Create a new job.
@@ -29,12 +30,12 @@ module.exports = function (express) {
    * @apiExample Example usage:
    *   endpoint: http://localhost:8080/api/v1/jobs
    */
-  router.post('/', {session: false}), function (req, res) {
-    Job.create(req.user, req.body, function (err, data) {
+  router.post('/', function (req, res) {
+    Job.create(req.body, function (err, data) {
       if (err) return res.status(codes.bad_request).send(err);
       else return res.send(data);
     });
-  };
+  });
 
   router.use('/:job_id', jobRouter);
 
@@ -46,12 +47,12 @@ module.exports = function (express) {
    * @apiExample Example usage:
    *   endpoint: http://localhost:8080/api/v1/jobs
    */
-  jobRouter.get('/', {session: false}), function (req, res) {
-    Job.findById(req.user, req.params.job_id, function (err, data) {
+  jobRouter.get('/', function (req, res) {
+    Job.findById(req.params.job_id, function (err, data) {
       if (err) return res.status(codes.bad_request).send(err);
       return res.send(data);
     });
-  };
+  });
 
   return router;
 };

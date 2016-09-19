@@ -28,3 +28,5 @@ api.remove = function (id, cb) {
         doc.remove(cb);
     });
 };
+
+module.exports = api;
